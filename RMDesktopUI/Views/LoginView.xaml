@@ -18,6 +18,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <TextBlock
@@ -29,25 +30,53 @@
             HorizontalAlignment="Center">
             Login Form
         </TextBlock>
+        
+        <!-- Error Message row -->
+        <TextBlock
+            Grid.Row="1"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            Visibility="{Binding IsErrorVisible, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
+            Foreground="Red"
+            Margin="0 0 0 20"
+            MaxWidth="300"
+            TextWrapping="Wrap"
+            x:Name="ErrorMessage" />
 
         <!-- Username row -->
-        <TextBlock Grid.Row="1" Grid.Column="1" Margin="0 0 0 10">
+        <TextBlock 
+            Grid.Row="2" 
+            Grid.Column="1" 
+            Margin="0 0 0 10">
             Username:
         </TextBlock>
-        <TextBox x:Name="UserName" Grid.Row="1" Grid.Column="2" MinWidth="150" Margin="0 0 0 10" />
+        <TextBox  
+            Grid.Row="2" 
+            Grid.Column="2" 
+            x:Name="UserName" 
+            MinWidth="350" 
+            Margin="0 0 5 10" />
 
         <!-- Password row -->
-        <TextBlock Grid.Row="2" Grid.Column="1" Margin="0 0 0 10">
+        <TextBlock 
+            Grid.Row="3" 
+            Grid.Column="1" 
+            Margin="0 0 0 10">
             Password:
         </TextBlock>
-        <PasswordBox x:Name="Password" Grid.Row="2" Grid.Column="2" MinWidth="150" Margin="0 0 0 20" />
+        <PasswordBox 
+            x:Name="Password" 
+            Grid.Row="3" 
+            Grid.Column="2" 
+            MinWidth="350" 
+            Margin="0 0 5 20" />
 
         <!-- Login Button row -->
         <Button
             HorizontalAlignment="Center"
             x:Name="LogIn"
             Content="Log In"
-            Grid.Row="3" 
+            Grid.Row="4" 
             Grid.Column="1" 
             Grid.ColumnSpan="2"
             Padding="20 5"/>
