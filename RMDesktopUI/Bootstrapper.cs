@@ -1,5 +1,7 @@
 ﻿using Caliburn.Micro;
 using RMDesktopUI.Helpers;
+using RMDesktopUI.Library.API;
+using RMDesktopUI.Library.Models;
 using RMDesktopUI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -25,12 +27,14 @@ namespace RMDesktopUI
 
         protected override void Configure()
         {
-            _container.Instance(_container);
+            _container
+                .Instance(_container)
+                .PerRequest<IProductEndPoint, ProductEndPoint>();
             _container
                 .Singleton<IWindowManager, WindowManager>()
                 .Singleton<IEventAggregator, EventAggregator>()
-                .Singleton<IAPIHelper, APIHelper>();
-            
+                .Singleton<IAPIHelper, APIHelper>()
+                .Singleton<ILoggedInUserModel, LoggedInUserModel>();
 
             GetType().Assembly.GetTypes()
                 .Where(type => type.IsClass)
