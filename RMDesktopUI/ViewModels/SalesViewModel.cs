@@ -6,16 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 using RMDesktopUI.Library.API;
 using RMDesktopUI.Library.Models;
+using RMDesktopUI.Library.Helpers;
 
 namespace RMDesktopUI.ViewModels
 {
     public class SalesViewModel : Screen
     {
         IProductEndPoint _productEndPoint;
+        IConfigHelper _configHelper;
 
-        public SalesViewModel(IProductEndPoint productEndPoint)
+        public SalesViewModel(IProductEndPoint productEndPoint, IConfigHelper configHelper)
         {
-            _productEndPoint = productEndPoint;           
+            _productEndPoint = productEndPoint;
+            _configHelper = configHelper;
         }
 
         protected override async void OnViewLoaded(object view)
@@ -66,7 +69,7 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        private int _itemQuantity;
+        private int _itemQuantity = 1;
         public int ItemQuantity
         {
             get { return _itemQuantity; }
@@ -82,8 +85,40 @@ namespace RMDesktopUI.ViewModels
         {
             get 
             {
-                //TODO - replace with calculation
-                return "$0.00"; 
+                return CalculateSubTotal().ToString("C"); 
+            }
+        }
+
+        private decimal CalculateSubTotal()
+        {
+            decimal subTotal = 0;
+            foreach (var item in _cart)
+            {
+                subTotal += (item.Product.RetailPrice * item.QuantityInCart);
+            }
+            return subTotal;
+        }
+
+        private decimal CalculateTax()
+        {
+            decimal taxAmount = 0;
+            decimal taxRate = _configHelper.GetTaxRate()/100;
+
+            foreach (var item in _cart)
+            {
+                if (item.Product.IsTaxable)
+                {
+                    taxAmount += (item.Product.RetailPrice * item.QuantityInCart * taxRate);
+                }
+            }
+            return taxAmount;
+        }
+
+        public string Tax
+        {
+            get
+            {                
+                return CalculateTax().ToString("C");
             }
         }
 
@@ -91,17 +126,8 @@ namespace RMDesktopUI.ViewModels
         {
             get
             {
-                //TODO - replace with calculation
-                return "$0.00";
-            }
-        }
-
-        public string Tax
-        {
-            get
-            {
-                //TODO - replace with calculation
-                return "$0.00";
+                decimal total = CalculateSubTotal() + CalculateTax();
+                return total.ToString("C");
             }
         }
 
@@ -122,12 +148,29 @@ namespace RMDesktopUI.ViewModels
 
         public void AddToCart()
         {
-            CartItemModel item = new CartItemModel
+            CartItemModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
+
+            if(existingItem != null)
             {
-                Product = SelectedProduct,
-                QuantityInCart = ItemQuantity
-            };
-            Cart.Add(item);
+                existingItem.QuantityInCart += ItemQuantity;
+                Cart.Remove(existingItem);
+                Cart.Add(existingItem);
+            }
+            else
+            {
+                CartItemModel item = new CartItemModel
+                {
+                    Product = SelectedProduct,
+                    QuantityInCart = ItemQuantity
+                };
+                Cart.Add(item);
+            }
+            
+            SelectedProduct.QuantityInStock -= ItemQuantity;
+            ItemQuantity = 1;
+            NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
         }
 
         public bool CanRemoveToCart
@@ -141,9 +184,11 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        public void RemoveToCart()
+        public void RemoveFromCart()
         {
-
+            NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
         }
 
         public bool CanCheckOut
