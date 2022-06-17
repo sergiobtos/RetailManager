@@ -19,6 +19,7 @@ namespace RMDataManager.Controllers
 
             UserData data = new UserData();
 
+
             return data.GetUserById(id).First();
         }
 

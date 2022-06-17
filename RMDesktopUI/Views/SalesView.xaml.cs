@@ -24,5 +24,6 @@ namespace RMDesktopUI.Views
         {
             InitializeComponent();
         }
+
     }
 }

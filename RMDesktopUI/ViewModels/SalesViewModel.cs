@@ -41,9 +41,22 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        private BindingList<ProductModel> _cart;
+        private ProductModel _selectedProduct;
 
-        public BindingList<ProductModel> Cart
+        public ProductModel SelectedProduct
+        {
+            get { return _selectedProduct; }
+            set 
+            {
+                _selectedProduct = value; 
+                NotifyOfPropertyChange(nameof(SelectedProduct));
+                NotifyOfPropertyChange(() => CanAddToCart);
+            }
+        }
+
+
+        private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
+        public BindingList<CartItemModel> Cart
         {
             get { return _cart; }
             set
@@ -54,7 +67,6 @@ namespace RMDesktopUI.ViewModels
         }
 
         private int _itemQuantity;
-
         public int ItemQuantity
         {
             get { return _itemQuantity; }
@@ -62,6 +74,7 @@ namespace RMDesktopUI.ViewModels
             { 
                 _itemQuantity = value;
                 NotifyOfPropertyChange(() => ItemQuantity);
+                NotifyOfPropertyChange(()=> CanAddToCart);
             }
         }
 
@@ -92,7 +105,6 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-
         public bool CanAddToCart
         {
             get
@@ -101,6 +113,8 @@ namespace RMDesktopUI.ViewModels
 
                 //make sure something is selected
                 //make sure there is an item quantity
+                if (ItemQuantity > 0 && SelectedProduct?.QuantityInStock >= ItemQuantity)
+                    ouput = true;
 
                 return ouput;
             }
@@ -108,7 +122,12 @@ namespace RMDesktopUI.ViewModels
 
         public void AddToCart()
         {
-
+            CartItemModel item = new CartItemModel
+            {
+                Product = SelectedProduct,
+                QuantityInCart = ItemQuantity
+            };
+            Cart.Add(item);
         }
 
         public bool CanRemoveToCart
