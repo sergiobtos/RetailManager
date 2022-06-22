@@ -13,12 +13,14 @@ namespace RMDesktopUI.ViewModels
     public class SalesViewModel : Screen
     {
         IProductEndPoint _productEndPoint;
+        ISaleEndPoint _saleEndPoint;
         IConfigHelper _configHelper;
 
-        public SalesViewModel(IProductEndPoint productEndPoint, IConfigHelper configHelper)
+        public SalesViewModel(IProductEndPoint productEndPoint, IConfigHelper configHelper, ISaleEndPoint saleEndPoint)
         {
             _productEndPoint = productEndPoint;
             _configHelper = configHelper;
+            _saleEndPoint = saleEndPoint;   
         }
 
         protected override async void OnViewLoaded(object view)
@@ -175,6 +177,7 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
 
         public bool CanRemoveToCart
@@ -193,6 +196,7 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
 
         public bool CanCheckOut
@@ -201,13 +205,28 @@ namespace RMDesktopUI.ViewModels
             {
                 bool ouput = false;
 
-                //make sure there is something in the cart
+                if(Cart.Count > 0)
+                {
+                    ouput = true;
+                }
                 return ouput;
             }
         }
 
-        public void CheckOut()
+        public async Task CheckOut()
         {
+            SaleModel sale = new SaleModel();
+
+            foreach (var item in Cart)
+            {
+                sale.SaleDetails.Add(new SaleDetailModel
+                {
+                    ProductId = item.Product.Id,
+                    Quantity = item.QuantityInCart
+                });
+            }
+
+            await _saleEndPoint.PostSale(sale);
 
         }
 
