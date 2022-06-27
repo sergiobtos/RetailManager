@@ -76,7 +76,7 @@
             <Button x:Name="AddToCart" 
                     Content="Add to Cart" 
                     Margin="0 0 0 30"
-                    Padding="5"/>
+                    Padding="5" Click="AddToCart_Click"/>
             <Button x:Name="RemoveFromCart" 
                     Content="Remove from Cart"
                     Padding="5"/>
@@ -92,7 +92,8 @@
             Grid.Row="2" 
             Grid.Column="2"
             MinHeight="200"
-            MinWidth="150">
+            MinWidth="150"
+            SelectedItem="{Binding SelectedCartItem}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{ Binding DisplayText}"/>

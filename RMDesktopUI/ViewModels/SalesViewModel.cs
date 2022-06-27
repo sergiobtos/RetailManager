@@ -67,6 +67,19 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
+        private CartItemDisplayModel _selectedCartItem;
+
+        public CartItemDisplayModel SelectedCartItem
+        {
+            get { return _selectedCartItem; }
+            set
+            {
+                _selectedCartItem = value;
+                NotifyOfPropertyChange(nameof(SelectedCartItem));
+                NotifyOfPropertyChange(() => CanRemoveToCart);
+            }
+        }
+
 
         private BindingList<CartItemDisplayModel> _cart = new BindingList<CartItemDisplayModel>();
         public BindingList<CartItemDisplayModel> Cart
@@ -149,14 +162,14 @@ namespace RMDesktopUI.ViewModels
         {
             get
             {
-                bool ouput = false;
+                bool output = false;
 
                 //make sure something is selected
                 //make sure there is an item quantity
                 if (ItemQuantity > 0 && SelectedProduct?.QuantityInStock >= ItemQuantity)
-                    ouput = true;
+                    output = true;
 
-                return ouput;
+                return output;
             }
         }
 
@@ -191,15 +204,26 @@ namespace RMDesktopUI.ViewModels
         {
             get
             {
-                bool ouput = false;
+                bool output = false;
+                if (SelectedCartItem != null && SelectedCartItem?.Product.QuantityInStock > 0)
+                    output = true;
 
                 //make sure something is selected
-                return ouput;
+                return output;
             }
         }
 
         public void RemoveFromCart()
         {
+            SelectedCartItem.Product.QuantityInStock += 1;
+            if (SelectedCartItem.QuantityInCart > 1)
+            {
+                SelectedCartItem.QuantityInCart -= 1;           
+            }
+            else
+            {                
+                Cart.Remove(SelectedCartItem);
+            }
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
